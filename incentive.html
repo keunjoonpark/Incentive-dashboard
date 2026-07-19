@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>경덕한의원 인센티브 현황</title>
+<style>
+  :root {
+    --green:   #1D9E75;
+    --lgreen:  #E8F5F0;
+    --navy:    #1F4E79;
+    --lnavy:   #EEF3F9;
+    --orange:  #BA7517;
+    --lorange: #FEF6E7;
+    --gray:    #6b7a99;
+    --lgray:   #f4f6f9;
+    --red:     #C62828;
+    --lred:    #FFEBEE;
+    --bg:      #F7F9FC;
+    --card:    #FFFFFF;
+    --text:    #1a2236;
+    --border:  #e2e8f0;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; background: var(--bg); color: var(--text); font-size: 14px; }
+
+  .header {
+    background: linear-gradient(135deg, var(--navy) 0%, #2d6a9f 100%);
+    color: white;
+    padding: 24px 32px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .header h1 { font-size: 20px; font-weight: 700; }
+  .header .sub { font-size: 12px; opacity: 0.75; margin-top: 4px; }
+  .badge { background: rgba(255,255,255,0.15); padding: 4px 12px; border-radius: 20px; font-size: 12px; }
+
+  .container { max-width: 900px; margin: 0 auto; padding: 24px 16px; }
+
+  .section-title {
+    font-size: 15px; font-weight: 700; color: var(--navy);
+    margin: 28px 0 12px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .section-title::before {
+    content: ''; display: block; width: 4px; height: 18px;
+    background: var(--green); border-radius: 2px;
+  }
+
+  /* 기준선 카드 */
+  .criteria-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 8px; }
+  .criteria-card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+    padding: 16px 20px;
+  }
+  .criteria-card .label { font-size: 11px; color: var(--gray); margin-bottom: 6px; }
+  .criteria-card .value { font-size: 22px; font-weight: 700; color: var(--navy); }
+  .criteria-card .desc { font-size: 11px; color: var(--gray); margin-top: 4px; }
+
+  /* 이번 주 현황 */
+  .current-card {
+    background: var(--card); border: 2px solid var(--green); border-radius: 14px;
+    padding: 20px 24px; margin-bottom: 24px;
+  }
+  .current-top { display: flex; justify-content: space-between; align-items: flex-start; }
+  .current-week { font-size: 12px; color: var(--gray); margin-bottom: 4px; }
+  .current-avg { font-size: 40px; font-weight: 800; color: var(--navy); line-height: 1; }
+  .current-avg span { font-size: 16px; font-weight: 400; color: var(--gray); }
+  .incentive-badge {
+    background: var(--green); color: white;
+    padding: 8px 16px; border-radius: 20px;
+    font-size: 18px; font-weight: 700;
+    white-space: nowrap;
+  }
+  .incentive-badge.none { background: var(--lgray); color: var(--gray); }
+  .progress-wrap { margin-top: 16px; }
+  .progress-label { display: flex; justify-content: space-between; font-size: 11px; color: var(--gray); margin-bottom: 6px; }
+  .progress-bar { height: 10px; background: var(--lgray); border-radius: 6px; overflow: hidden; }
+  .progress-fill { height: 100%; border-radius: 6px; background: var(--green); transition: width 0.6s ease; }
+  .tier-marks { display: flex; justify-content: space-between; font-size: 10px; color: var(--gray); margin-top: 6px; }
+
+  /* 주차별 테이블 */
+  .week-table { width: 100%; border-collapse: collapse; background: var(--card); border-radius: 12px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+  .week-table th { background: var(--lnavy); color: var(--navy); font-weight: 600; font-size: 12px; padding: 10px 14px; text-align: center; }
+  .week-table td { padding: 10px 14px; text-align: center; border-bottom: 1px solid var(--border); font-size: 13px; }
+  .week-table tr:last-child td { border-bottom: none; }
+  .week-table tr.current-row td { background: #E8F5F0; font-weight: 600; }
+  .week-table td.name { text-align: left; color: var(--gray); font-size: 12px; }
+  .avg-cell { font-weight: 700; }
+  .avg-cell.hit { color: var(--green); }
+  .avg-cell.miss { color: var(--gray); }
+  .inc-cell { font-weight: 700; color: var(--green); }
+  .inc-cell.zero { color: var(--gray); font-weight: 400; }
+
+  /* 월별 비급여 */
+  .month-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .month-card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+    padding: 16px 18px;
+  }
+  .month-card .m-label { font-size: 12px; color: var(--gray); margin-bottom: 4px; }
+  .month-card .m-nv { font-size: 18px; font-weight: 700; color: var(--navy); margin-bottom: 8px; }
+  .month-card .m-bar { height: 8px; background: var(--lgray); border-radius: 4px; overflow: hidden; margin-bottom: 6px; }
+  .month-card .m-fill { height: 100%; border-radius: 4px; }
+  .month-card .m-inc-label { font-size: 11px; color: var(--gray); }
+  .month-card .m-inc { font-size: 16px; font-weight: 700; }
+  .month-card .m-inc.zero { color: var(--gray); }
+  .month-card .m-inc.hit { color: var(--green); }
+  .month-card.active { border-color: var(--orange); }
+  .month-card.active .m-label::after { content: ' (진행중)'; color: var(--orange); font-weight: 600; }
+
+  /* 안내 */
+  .note { font-size: 11px; color: var(--gray); margin-top: 8px; line-height: 1.7; }
+  .note b { color: var(--navy); }
+
+  .tier-table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+  .tier-table th { font-size: 11px; color: var(--gray); font-weight: 500; padding: 6px 12px; text-align: center; background: var(--lgray); }
+  .tier-table td { font-size: 12px; padding: 7px 12px; text-align: center; border-bottom: 1px solid var(--border); }
+  .tier-table tr.active-tier td { background: var(--lgreen); font-weight: 700; color: var(--green); }
+  .tier-table tr.active-tier td:first-child::before { content: '▶ '; }
+
+  .footer { text-align: center; color: var(--gray); font-size: 11px; padding: 32px 0 20px; }
+</style>
+</head>
+<body>
+<div id="pw-overlay" style="position:fixed;inset:0;background:#1F4E79;display:flex;align-items:center;justify-content:center;z-index:9999">
+  <div style="background:white;border-radius:16px;padding:36px 40px;text-align:center;width:300px;box-shadow:0 20px 60px rgba(0,0,0,0.3)">
+    <div style="font-size:28px;margin-bottom:8px">🔒</div>
+    <div style="font-size:16px;font-weight:700;color:#1F4E79;margin-bottom:4px">경덕한의원</div>
+    <div style="font-size:12px;color:#6b7a99;margin-bottom:20px">인센티브 현황</div>
+    <input id="pw-input" type="password" placeholder="비밀번호를 입력하세요"
+      style="width:100%;padding:10px 14px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:14px;outline:none;margin-bottom:10px;box-sizing:border-box"
+      onkeydown="if(event.key==='Enter')checkPw()">
+    <div id="pw-err" style="color:#C62828;font-size:12px;height:16px;margin-bottom:8px"></div>
+    <button onclick="checkPw()"
+      style="width:100%;padding:11px;background:#1F4E79;color:white;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer">
+      확인
+    </button>
+  </div>
+</div>
+<script>
+function checkPw(){
+  var v=document.getElementById('pw-input').value;
+  if(v==='5'){
+    document.getElementById('pw-overlay').style.display='none';
+  } else {
+    var e=document.getElementById('pw-err');
+    e.textContent='비밀번호가 틀렸습니다.';
+    document.getElementById('pw-input').value='';
+    setTimeout(function(){e.textContent='';},2000);
+  }
+}
+</script>
+
+
+<div class="header">
+  <div>
+    <div class="h1">경덕한의원 인센티브 현황</div>
+    <div class="sub">인센티브 지급 기준에 따른 주차별·월별 현황</div>
+  </div>
+  <div class="badge">최종 업데이트: 2026.07.19 (17주차)</div>
+</div>
+
+<div class="container">
+
+  <!-- 인센티브 기준 -->
+  <div class="section-title">인센티브 지급 기준</div>
+  <div class="criteria-grid">
+    <div class="criteria-card">
+      <div class="label">① 현재 일평균 환자 수 (3/23~7/19)</div>
+      <div class="value">23.5명</div>
+      <div class="desc">환수 인센티브는 주당 일평균 <b>24명 이상</b>부터 단계별 지급</div>
+    </div>
+    <div class="criteria-card">
+      <div class="label">② 비급여 인센티브 기준선</div>
+      <div class="value">2,000만원</div>
+      <div class="desc">월 비급여 매출 초과분의 10% 지급</div>
+    </div>
+  </div>
+  <p class="note" style="margin-bottom:4px">※ 두 인센티브 모두 산정 금액을 <b>근로시간에 비례</b>하여 나누어 분배합니다.</p>
+
+  <!-- 환수 인센티브 단계표 -->
+  <table class="tier-table" style="margin-top:12px;background:white;border-radius:10px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.06)">
+    <thead><tr><th>주당 일평균</th><th>인센티브</th><th>주당 일평균</th><th>인센티브</th></tr></thead>
+    <tbody>
+      <tr><td>23.5명 (기준)</td><td>—</td><td>33명 이상</td><td>36만원</td></tr>
+      <tr class="active-tier"><td>24명 이상</td><td>9만원</td><td>36명 이상</td><td>45만원</td></tr>
+      <tr><td>27명 이상</td><td>18만원</td><td>39명 이상</td><td>54만원</td></tr>
+      <tr><td>30명 이상</td><td>27만원</td><td colspan="2" style="color:var(--gray);font-size:11px">17주차 24.6명 → 9만원 단계 | 전체 일평균 23.5명</td></tr>
+    </tbody>
+  </table>
+
+  <!-- 이번 주 현황 -->
+  <div class="section-title">이번 주 현황 (17주차 · 7/13~7/19)</div>
+  <div class="current-card">
+    <div class="current-top">
+      <div>
+        <div class="current-week">17주차 일평균 환자 수</div>
+        <div class="current-avg">24.6<span>명/일</span></div>
+        <div style="font-size:12px;color:var(--green);margin-top:6px">▲ 기준선(23.5명) 초과 +1.1명</div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:11px;color:var(--gray);margin-bottom:6px">환수 인센티브</div>
+        <div class="incentive-badge">9만원</div>
+        <div style="font-size:11px;color:var(--gray);margin-top:8px">다음 단계까지</div>
+        <div style="font-size:13px;font-weight:700;color:var(--orange)">+2.4명 → 18만원</div>
+      </div>
+    </div>
+    <div class="progress-wrap">
+      <div class="progress-label">
+        <span>기준 23.5명</span>
+        <span style="color:var(--orange)">다음 단계 27명</span>
+        <span>39명</span>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" style="width:18%"></div>
+        <!-- (24.6-23.5)/(39-23.5) = 7.1% 로 표시, 단 최소 표시 위해 조정 -->
+      </div>
+      <div class="tier-marks">
+        <span>23.5</span><span>24</span><span>27</span><span>30</span><span>33</span><span>36</span><span>39</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 주차별 환수 인센티브 이력 -->
+  <div class="section-title">주차별 환수 인센티브 이력</div>
+  <table class="week-table">
+    <thead>
+      <tr>
+        <th>주차</th><th>기간</th><th>총방문</th><th>일평균</th><th>환수 인센티브</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td class="name">14주차</td><td class="name">6/22~6/28</td><td>152명</td><td class="avg-cell miss">21.7명</td><td class="inc-cell zero">—</td></tr>
+      <tr><td class="name">15주차</td><td class="name">6/29~7/5</td><td>200명</td><td class="avg-cell hit">28.6명</td><td class="inc-cell">18만원</td></tr>
+      <tr><td class="name">16주차</td><td class="name">7/6~7/12</td><td>179명</td><td class="avg-cell hit">25.6명</td><td class="inc-cell">9만원</td></tr>
+      <tr class="current-row"><td class="name">17주차 ★</td><td class="name">7/13~7/19</td><td>172명</td><td class="avg-cell hit">24.6명</td><td class="inc-cell">9만원</td></tr>
+      <tr style="background:var(--lnavy);font-weight:700">
+        <td colspan="2" style="text-align:left;padding-left:14px;color:var(--navy)">인센티브 발생 주차</td>
+        <td style="color:var(--navy)">3회</td>
+        <td style="color:var(--navy)">평균 26.3명</td>
+        <td style="color:var(--green)">누적 36만원</td>
+      </tr>
+    </tbody>
+  </table>
+  <p class="note">※ 인센티브 적용 시작: 6/23 (14주차~) | 14주차(21.7명) 미달, 15주차(28.6명) 18만원, 16주차(25.6명) 9만원, 17주차(24.6명) 9만원</p>
+
+  <!-- 월별 비급여 인센티브 -->
+  <div class="section-title">월별 비급여 인센티브 현황</div>
+  <div class="month-grid">
+    <div class="month-card">
+      <div class="m-label">4월 비급여 매출</div>
+      <div class="m-nv">업데이트 예정</div>
+      <div class="m-bar"><div class="m-fill" style="width:0%;background:var(--lgray)"></div></div>
+      <div class="m-inc-label">비급여 인센티브</div>
+      <div class="m-inc zero">월별 분석 완료 후 반영</div>
+    </div>
+    <div class="month-card">
+      <div class="m-label">5월 비급여 매출</div>
+      <div class="m-nv">업데이트 예정</div>
+      <div class="m-bar"><div class="m-fill" style="width:0%;background:var(--lgray)"></div></div>
+      <div class="m-inc-label">비급여 인센티브</div>
+      <div class="m-inc zero">월별 분석 완료 후 반영</div>
+    </div>
+    <div class="month-card">
+      <div class="m-label">6월 비급여 매출</div>
+      <div class="m-nv">업데이트 예정</div>
+      <div class="m-bar"><div class="m-fill" style="width:0%;background:var(--lgray)"></div></div>
+      <div class="m-inc-label">비급여 인센티브</div>
+      <div class="m-inc zero">월별 분석 완료 후 반영</div>
+    </div>
+    <div class="month-card active">
+      <div class="m-label">7월 비급여 매출</div>
+      <div class="m-nv">~7/19 기준: 약 1,241만원</div>
+      <div class="m-bar"><div class="m-fill" style="width:62%;background:var(--orange)"></div></div>
+      <div class="m-inc-label">현재까지 추정 인센티브</div>
+      <div class="m-inc zero">미달 (기준 2,000만원)</div>
+    </div>
+  </div>
+  <p class="note" style="margin-top:10px">
+    ※ 비급여 인센티브 = (월 비급여 − 2,000만원) × 10%<br>
+    ※ 4·5·6월 비급여 매출은 월별 분석 완료 시 업데이트 예정<br>
+    ※ 7월은 7/19까지 비급여 합산 기준 (7/1~7/5 추정+16주차+17주차): 약 4,832,000+2,213,000+5,367,000 = <b>약 12,412,000원</b><br>
+    &nbsp;&nbsp;&nbsp;→ 기준 2,000만원까지 약 7,588,000원 부족 | 7월 말까지 추가 비급여 발생 시 달성 가능<br>
+    &nbsp;&nbsp;&nbsp;※ 7/1~7/5 비급여는 15주차 일별 데이터 기준 추정값
+  </p>
+
+  <!-- 인센티브 총계 -->
+  <div class="section-title">인센티브 누적 현황 (17주차 기준)</div>
+  <div style="background:white;border-radius:12px;padding:20px 24px;border:1px solid var(--border);box-shadow:0 1px 4px rgba(0,0,0,0.06)">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+      <div>
+        <div style="font-size:11px;color:var(--gray);margin-bottom:4px">환수 인센티브 누적</div>
+        <div style="font-size:28px;font-weight:800;color:var(--navy)">36만원</div>
+        <div style="font-size:12px;color:var(--gray);margin-top:4px">14주차~ 4주 중 3주 발생</div>
+      </div>
+      <div>
+        <div style="font-size:11px;color:var(--gray);margin-bottom:4px">비급여 인센티브 누적</div>
+        <div style="font-size:28px;font-weight:800;color:var(--navy)">집계중</div>
+        <div style="font-size:12px;color:var(--gray);margin-top:4px">월별 분석 완료 후 확정</div>
+      </div>
+    </div>
+    <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border)">
+      <div style="font-size:11px;color:var(--gray);margin-bottom:4px">환수 인센티브 발생 주차</div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px">
+        <span style="background:#E8F0FE;color:#1565C0;padding:3px 10px;border-radius:12px;font-size:12px;font-weight:600">15주 18만</span>
+        <span style="background:var(--lgreen);color:var(--green);padding:3px 10px;border-radius:12px;font-size:12px;font-weight:600">16주 9만</span>
+        <span style="background:var(--lgreen);color:var(--green);padding:3px 10px;border-radius:12px;font-size:12px;font-weight:600">17주 9만</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">경덕한의원 · 직원 인센티브 현황 대시보드 · 매주 업데이트</div>
+
+<script>
+// 프로그레스 바 동적 계산
+(function(){
+  var avg = 24.6;
+  var baseline = 23.5;
+  var max = 39;
+  var pct = Math.max(0, Math.min(100, (avg - baseline) / (max - baseline) * 100));
+  var fill = document.querySelector('.progress-fill');
+  if(fill) fill.style.width = Math.max(pct, 5) + '%';
+})();
+</script>
+
+</body>
+</html>
